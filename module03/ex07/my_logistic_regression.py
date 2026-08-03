@@ -58,8 +58,8 @@ class MyLogisticRegression():
         if not isinstance(y, np.ndarray) or not isinstance(yhat, np.ndarray):
             return None
         if y.ndim == 2 and y.shape[1] == 1 and y.shape == yhat.shape:
-            return y * np.log(yhat + self.eps) +\
-                (1 - y) * np.log(1 - yhat + self.eps)
+            return -(y * np.log(yhat + self.eps) +
+                     (1 - y) * np.log(1 - yhat + self.eps))
         return None
 
     def loss_(self, y, yhat):
