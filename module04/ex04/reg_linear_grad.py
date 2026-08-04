@@ -32,7 +32,7 @@ def reg_linear_grad(y, x, theta, lambda_):
         grad[0, 0] = np.mean(X @ theta - y)
         for j in range(1, theta.shape[0]):
             grad[j, 0] = (1 / x.shape[0]) * (
-                np.sum((X @ theta - y) * X[:, j]) + lambda_ *
+                np.sum((X @ theta - y) * X[:, j].reshape(-1, 1)) + lambda_ *
                 theta[j, 0])
         return grad
     return None

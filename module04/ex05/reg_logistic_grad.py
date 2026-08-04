@@ -32,7 +32,8 @@ def reg_logistic_grad(y, x, theta, lambda_):
         grad = np.zeros((theta.shape))
         for j in range(1, theta.shape[0]):
             grad[j, 0] = (1 / x.shape[0]) * (
-                np.sum((logistic_predict_(x, theta) - y) * x[:, j - 1]) +
+                np.sum((logistic_predict_(x, theta) - y) *
+                       x[:, j - 1].reshape(-1, 1)) +
                 lambda_ * theta[j, 0])
         return grad
     return None

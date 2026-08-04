@@ -57,7 +57,13 @@ class MyRidge(MyLinearRegression):
     @copy_doc(MyLinearRegression.loss_elem_)
     def loss_elem_(self, y, y_hat):
         loss_elem = super().loss_elem_(y, y_hat)
-        return loss_elem + self.lambda_ * l2(self.thetas)
+        return loss_elem + self.lambda_ * l2(self.thetas) if loss_elem \
+            is not None else None
+
+    @copy_doc(MyLinearRegression.loss_)
+    def loss_(self, y, y_hat):
+        loss_elem = self.loss_elem_(y, y_hat)
+        return 0.5 * np.mean(loss_elem) if loss_elem is not None else None
 
     def gradient_(self, x, y):
         """
@@ -81,8 +87,8 @@ class MyRidge(MyLinearRegression):
         if x.ndim == 2 and y.ndim == 2 and x.shape[0] == y.shape[0] and\
                 self.thetas.shape[0] == x.shape[1] + 1:
             X = add_intercept(x)
-            return (1 / x.shape[0]) * (np.transpose(X) @ (X @ self.thetas - y) +
-                                       self.lambda_ * np.vstack(
+            return (1 / x.shape[0]) * (np.transpose(X) @ (X @ self.thetas - y)
+                                       + self.lambda_ * np.vstack(
                                            (np.array([[0]]),
                                             self.thetas[1:, :])))
         return None
