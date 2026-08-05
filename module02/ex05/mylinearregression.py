@@ -60,11 +60,10 @@ class MyLinearRegression():
         for _ in ft_progress(range(self.max_iter)):
             self.thetas = self.thetas - self.alpha * grad
             grad = gradient(x, y, self.thetas)
-            self.max_iter -= 1
-        print()
         print("done.")
 
-    def loss_elem_(self, y, y_hat):
+    @classmethod
+    def loss_elem_(cls, y, y_hat):
         """
         Description:
             Calculates all the elements (y_pred - y)^2 of the loss function.
@@ -88,7 +87,8 @@ class MyLinearRegression():
             return None
         return (y_hat - y) ** 2
 
-    def loss_(self, y, y_hat):
+    @classmethod
+    def loss_(cls, y, y_hat):
         """
         Description:
             Calculates the value of loss function.
@@ -104,12 +104,13 @@ class MyLinearRegression():
         Raises:
             This function should not raise any Exception.
         """
-        J_elem = self.loss_elem_(y, y_hat)
+        J_elem = cls.loss_elem_(y, y_hat)
         if J_elem is None:
             return None
         return np.sum(J_elem) / (2 * len(J_elem))
 
-    def mse_(self, y, y_hat):
+    @classmethod
+    def mse_(cls, y, y_hat):
         """Description:
         Calculate the MSE between the predicted output and the real output.
         Args:
@@ -130,7 +131,8 @@ class MyLinearRegression():
         diff = y_hat - y
         return np.sum(diff * diff) / diff.size
 
-    def rmse_(self, y, y_hat):
+    @classmethod
+    def rmse_(cls, y, y_hat):
         """Description:
         Calculate the RMSE between the predicted output and the real output.
         Args:
@@ -143,12 +145,13 @@ class MyLinearRegression():
         Raises:
             This function should not raise any Exceptions.
         """
-        mse = self.mse_(y, y_hat)
+        mse = cls.mse_(y, y_hat)
         if mse is None:
             return None
         return sqrt(mse)
 
-    def mae_(self, y, y_hat):
+    @classmethod
+    def mae_(cls, y, y_hat):
         """Description:
         Calculate the MAE between the predicted output and the real output.
             Args:
@@ -169,7 +172,8 @@ class MyLinearRegression():
         diff = y_hat - y
         return np.sum(abs(diff)) / diff.size
 
-    def r2score_(self, y, y_hat):
+    @classmethod
+    def r2score_(cls, y, y_hat):
         """Description:
         Calculate the R2score between the predicted output and the output.
         Args:
@@ -188,4 +192,4 @@ class MyLinearRegression():
                 y_hat.shape[1] != 1:
             return None
         diff_m = y - np.mean(y)
-        return 1 - diff_m.size * self.mse_(y, y_hat) / np.sum(diff_m * diff_m)
+        return 1 - diff_m.size * cls.mse_(y, y_hat) / np.sum(diff_m * diff_m)

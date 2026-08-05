@@ -15,7 +15,7 @@ def plot(x, y, models):
         x_p = add_polynomial_features(continuous_x, i + 1)
         y_hat = models[i].predict_(x_p)
         plt.plot(continuous_x, y_hat, color=colors[i],
-                 label=f"{models[i].name}")
+                 label=f"model{i}")
         plt.scatter(x, y, color=colors[i], marker='o',
                     label="True Value")
     plt.xlabel("Quantity of blue pill (in micrograms)")
@@ -36,21 +36,21 @@ if __name__ == "__main__":
     theta6 = np.array([[9110], [-18015], [13400], [-4935], [966], [-96.4],
                        [3.86]])
     models = [MyLR(thetas=np.array([[-20], [1]]), alpha=2.5e-5,
-                   max_iter=100000, name=' model1'),
+                   max_iter=100000),
               MyLR(thetas=np.array([[50], [-29], [50]]),
-                   alpha=0.0005e-5, max_iter= 100000, name=' model2'),
+                   alpha=0.0005e-5, max_iter=100000),
               MyLR(thetas=np.array([[100], [-445], [-66], [17]]),
                    alpha=0.0005e-5,
-                   max_iter=100000, name=' model3'),
+                   max_iter=100000),
               MyLR(thetas=theta4,
                    alpha=0.0005e-6,
-                   max_iter=100000, name=' model4'),
+                   max_iter=100000),
               MyLR(thetas=theta5,
                    alpha=0.0005e-6,
-                   max_iter=100000, name=' model5'),
+                   max_iter=100000),
               MyLR(thetas=theta6,
                    alpha=0.0005e-6,
-                   max_iter=100000, name=' model6')
+                   max_iter=100000)
               ]
     estimations = []
     errors = []
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         estimations.append(models[i].predict_(x_))
         errors.append(models[i].mse_(estimations[i], y))
     for i in range(6):
-        print(f'Evaluation score of{models[i].name} : {errors[i]}')
+        print(f'Evaluation score of model{i} : {errors[i]}')
     plt.bar([i + 1 for i in range(6)], errors, color='skyblue', width=0.6)
     plt.title('MSE score in funciton of polynomial degree')
     plt.xlabel('Polynomial degree')

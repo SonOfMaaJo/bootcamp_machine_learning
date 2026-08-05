@@ -5,6 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from my_logistic_regression import MyLogisticRegression as mlg
 from data_spliter import data_spliter
+import sys
 
 
 def plot(X, Y, Y_hat, **kwargs):
@@ -25,7 +26,7 @@ def plot(X, Y, Y_hat, **kwargs):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='discriminate between citizens who come from a fav planet')
-    parser.add_argument('-zipcode', type=int,
+    parser.add_argument('-zipcode', type=int, required=True,
                         choices=[0, 1, 2, 3],
                         help='zip code of the fav planet')
     zipcode = parser.parse_args().zipcode
@@ -38,6 +39,7 @@ if __name__ == '__main__':
     y_train = y_train.reshape((-1, 1))
     y_test = y_test.reshape((-1, 1))
     mlr = mlg(np.array([[0], [0], [0], [0]]), alpha=0.25e-2, max_iter=1000000)
+    print('fitting...')
     mlr.fit_(x_train, y_train)
     print(f'Value of theta after fitting : {mlr.theta}')
     y_hat = mlr.predict_(x_test)

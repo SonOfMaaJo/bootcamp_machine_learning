@@ -2,14 +2,13 @@ import pandas as pd
 import numpy as np
 import yaml
 from polynomial_model_extended import add_polynomial_features
-from ridge import MyRidge as MLR
+from my_logistic_regression import MyLogisticRegression as mylg
 from data_spliter import data_spliter
-from z_score import zscore
-
+from other_metrics import f1_score_
 
 data = pd.read_csv("solar_system_census.csv")
 origin = pd.read_csv("solar_system_census_planets.csv")
-features = ['weight', 'prod_distance', 'bone_density']
+features = ['weight', 'height', 'bone_density']
 x = np.array(data[features])
 y = np.array(origin[['Origin']])
 x_train, _, y_train, _ = data_spliter(x, y, 0.8)
@@ -21,41 +20,37 @@ mean = x_train.mean()
 std = x_train.std()
 
 # models definition
-models = [MLR(thetas=np.array([[-1] for _ in range(x.shape[1])]),
-              alpha=0.25e-2, max_iter=1000000),
-          MLR(thetas=np.array([[0] for _ in range(x.shape[1] * 2)]),
-              alpha=0.25e-2, max_iter=1000000),
-          MLR(thetas=np.array([[0] for _ in range(x.shape[1] * 3)]),
-              alpha=0.25e-2, max_iter=1000000),
-          MLR(thetas=np.array([[0] for _ in range(x.shape[1] * 4)]),
-              alpha=0.25e-2, max_iter=1000000)
-          ]
-lambdas = np.arange(0, 1, 0.2)
-
+lambdas = np.linspace(0, 1, 5)
+number_row = 3 * x.shape[1] + 1
+models: list = []
+for lambda_ in lambdas:
+    models.append(mylg(theta=np.zeros((number_row, 1)),
+                       max_iter=1000000, lambda_=lambda_))
+models[1].alpha = 0.25e-5
 # fitting the models
 mod: dict[str, list] = dict()
-mod.update({"models": []})
+with open("models.yml", "r", encoding="utf-8") as f:
+    mod = yaml.safe_load(f) or {}
+if "models.yml" not in mod.keys():
+    mod.update({"models": []})
 
+x_ = add_polynomial_features((x_train - mean) / std, 3)
 for i in range(4):
-    x_ = add_polynomial_features((x_train - mean) / std, i + 1)
-    for lambda_ in lambdas:
-        models[i].set_params_(
-            thetas=np.array(
-                [[0] for _ in range(x.shape[1] * (i + 1) + 1)]),
-            lambda_=lambda_)
+    for model in models:
+        model.thetas = np.zeros((number_row, 1))
         print(f'fitting of model{i + 1} with'
-              f' lambda={models[i].lambda_:.1f}...')
-        models[i].fit_(x_, y_train)
-        y_hat = models[i].predict_(
-            add_polynomial_features((x_cross - mean) / std, i + 1)
+              f' lambda={model.lambda_:.1f} to discriminate class {i}...')
+        model.fit_(x_, (y_train == i).astype(int))
+        y_hat = model.predict_(
+            add_polynomial_features((x_cross - mean) / std, 3)
         )
-        thetas, alpha, _, lambda_ = models[i].get_params_()
         mod["models"].append({
             f'model{i}{len(mod["models"])}': {
-                "thetas": thetas.tolist(),
-                "alpha": float(alpha),
-                "lambda": float(lambda_),
-                "loss": float(models[i].loss_(y_hat, y_cross))
+                "thetas": model.thetas.tolist(),
+                "alpha": float(model.alpha),
+                "lambda": float(model.lambda_),
+                "loss": f1_score_((y_cross == i).astype(int), y_hat, i),
+                "class": i
             }
         })
 

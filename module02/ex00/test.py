@@ -2,7 +2,7 @@ from prediction import simple_predict
 import numpy as np
 
 
-x = np.arange(1,13).reshape((4,-1))
+x = np.arange(1, 13).reshape((4,-1))
 theta1 = np.array([5, 0, 0, 0]).reshape((-1, 1))
 print(simple_predict(x, theta1))
 theta2 = np.array([0, 1, 0, 0]).reshape((-1, 1))

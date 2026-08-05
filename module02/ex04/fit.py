@@ -34,6 +34,5 @@ def fit_(x, y, theta, alpha, max_iter):
     for _ in ft_progress(range(max_iter)):
         theta = theta - alpha * grad
         grad = gradient(x, y, theta)
-    print()
     print("done.")
     return theta

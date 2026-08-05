@@ -14,7 +14,6 @@ def minmax(x):
     """
     if not isinstance(x, np.ndarray):
         return None
-    if x.size == 0 or (x.ndim == 1 and x.shape[0] != 1 and x.shape[1] != 1
-                       ) or x.ndim > 2:
-        return None
-    return (x - np.min(x)) / (np.max(x) - np.min(x))
+    if x.ndim == 1 or (x.ndim == 2 and x.shape[1] == 1):
+        return (x - np.min(x)) / (np.max(x) - np.min(x))
+    return None

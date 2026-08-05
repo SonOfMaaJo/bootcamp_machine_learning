@@ -20,8 +20,7 @@ def plot(X, Y, Y_hat, **kwargs):
     plt.show()
 
 
-
-def predict_and_plot(X, Y, model, **kwargs):
+def predict_and_plot(X, Y, name, model, **kwargs):
     """
     function to predict and plot the results of the model.
     Args:
@@ -36,7 +35,7 @@ def predict_and_plot(X, Y, model, **kwargs):
     colors = cmap(np.linspace(0.3, 0.9, 2))
     model.fit_(X, Y)
     y_hat = model.predict_(X)
-    print(f"Error of model{model.name}: {model.mse_(Y, y_hat)}")
+    print(f"Error of model {name}: {model.mse_(Y, y_hat)}")
     plt.scatter(X, y_hat, color=colors[0], marker='o',
                 label=fr"{kwargs['label']}")
     plt.scatter(X, Y, color=colors[1], marker='o',
@@ -58,23 +57,24 @@ if __name__ == "__main__":
     Y = np.array(data[['Sell_price']])
 
     myLR_age = MyLR(thetas=np.array([[1000.0], [-1.0]]),
-                    alpha=2.5e-5, max_iter=100000, name=' MLR_age')
-    predict_and_plot(Xage, Y, myLR_age, color='Greens', label='Sell price',
+                    alpha=2.5e-5, max_iter=100000)
+    predict_and_plot(Xage, Y, 'MLR_age', myLR_age,
+                     color='Greens', label='Sell price',
                      xlabel=r"$x_1$: age (in years)",
                      ylabel=r"$y$ sell price (in keuros)",
                      title=r"Sell price of spaceship in term of age")
 
     myLR_thrust = MyLR(thetas=np.array([[0.5], [2.0]]),
-                       alpha=2.5e-5, max_iter=100000, name=' MLR_Thrust')
-    predict_and_plot(Xthrust, Y, myLR_thrust, color='Blues',
+                       alpha=2.5e-5, max_iter=100000)
+    predict_and_plot(Xthrust, Y, 'MLR_Thrust', myLR_thrust, color='Blues',
                      label='Sell price',
                      xlabel=r'$x_2$: thrust power (in 10km/s)',
                      ylabel=r'$y$: sell price (in Keuros)',
                      title="selling prices of spacecrafts if  f(thrust)")
 
     myLR_dist = MyLR(thetas=np.array([[800.0], [-1.0]]),
-                     alpha=2.5e-5, max_iter=100000, name=' MLR_Dist')
-    predict_and_plot(Xdist, Y, myLR_dist, color='Reds',
+                     alpha=2.5e-5, max_iter=100000)
+    predict_and_plot(Xdist, Y, 'MLR_dist', myLR_dist, color='Reds',
                      label='Sell price',
                      xlabel=r'$x_3$: distance totalizer value of spacecraft'
                      ' (in Tmeters)',
@@ -107,4 +107,3 @@ if __name__ == "__main__":
          xlabel=r'$x_3$: distance totalizer value of spacecraft (in Tmeters)',
          ylabel=r'$y$: sell price (in Keuros)',
          title="selling prices of spacecrafts in f(distance)")
-

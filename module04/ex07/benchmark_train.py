@@ -2,16 +2,8 @@ import pandas as pd
 import numpy as np
 import yaml
 from polynomial_model_extended import add_polynomial_features
-from my_logistic_regression import MyLogisticRegression as mlrg
+from ridge import MyRidge as MR
 from data_spliter import data_spliter
-from other_metrics import f1_score_
-
-
-def classifier(x, models):
-    yhat = models[0].predict_(x)
-    for i in range(1, len(models)):
-        yhat = np.hstack((yhat, models[i].predict_(x)))
-    return np.argmax(yhat, axis=1).reshape((-1, 1))
 
 
 data = pd.read_csv("space_avocado.csv")
@@ -30,15 +22,19 @@ lambdas = np.linspace(0, 1, 20).tolist()
 # models definition
 models: list = []
 for lambda_ in lambdas:
-    models.append(mlrg(thetas=np.array([[0] for _ in
-                                        range(x.shape[1] * 3 + 1)]),
-                       alpha=0.25e-2,
-                       max_iter=1000000, penality='l2',
-                       lambda_=lambda_))
+    models.append(MR(thetas=np.array([[0] for _ in
+                                      range(x.shape[1] * 3 + 1)]),
+                     alpha=0.25e-2,
+                     max_iter=1000000,
+                     lambda_=lambda_))
 
 # fitting the models
 mod: dict[str, list] = dict()
-mod.update({"models": []})
+with open("models.yml", "r", encoding="utf-8") as f:
+    mod = yaml.safe_load(f) or {}
+
+if "models" not in mod.keys():
+    mod.update({"models": []})
 
 for i in range(len(models)):
     x_ = add_polynomial_features((x_train - mean) / std, 3)

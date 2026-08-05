@@ -58,8 +58,8 @@ class MyLogisticRegression():
         if not isinstance(y, np.ndarray) or not isinstance(yhat, np.ndarray):
             return None
         if y.ndim == 2 and y.shape[1] == 1 and y.shape == yhat.shape:
-            return -(y * np.log(yhat + self.eps) +
-                     (1 - y) * np.log(1 - yhat + self.eps))
+            return -y * np.log(yhat + self.eps) -\
+                (1 - y) * np.log(1 - yhat + self.eps)
         return None
 
     def loss_(self, y, yhat):
@@ -78,7 +78,7 @@ class MyLogisticRegression():
         if not isinstance(y, np.ndarray) or not isinstance(yhat, np.ndarray):
             return None
         if y.ndim == 2 and y.shape[1] == 1 and yhat.shape == y.shape:
-            return -1 * np.mean(self.loss_elem_(y, yhat))
+            return np.mean(self.loss_elem_(y, yhat))
         return None
 
     def fit_(self, x, y):
@@ -98,10 +98,7 @@ class MyLogisticRegression():
         grad = vec_log_gradient(x, y, self.theta)
         if grad is None:
             return
-        print("fitting...")
         for _ in ft_progress(range(self.max_iter)):
             self.theta = self.theta - self.alpha * grad
             grad = vec_log_gradient(x, y, self.theta)
-            self.max_iter -= 1
-        print()
         print("done.")

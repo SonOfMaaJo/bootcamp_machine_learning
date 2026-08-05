@@ -10,10 +10,8 @@ def ft_progress(lst):
     lenght = len(lst)
     percentage = 0
     eta = 0
+    vide = ' '
     for i, el in enumerate(lst):
-        curr_time = time.time() - start_time
-        if i == 1:
-            eta = curr_time * lenght
         yield el
         schema = ''
         percentage = floor((i + 1) * 100 / lenght)
@@ -21,12 +19,18 @@ def ft_progress(lst):
         if percentage != 100:
             schema += '>'
         schema += ' ' * floor((100 - percentage - 1) / 2)
+        curr_time = time.time() - start_time
+        vitesse = (i + 1) / curr_time
+        eta = (lenght - i - 1) / vitesse
         bar = (
             f'ETA: {eta:.2f}s [{percentage}%]' +
             f'[{schema}] {i + 1}/{lenght} | elapsed time ' +
             f'{curr_time:.2f}s'
         )
+        print(vide, end='\r')
         print(f"{bar}", end='\r')
+        vide = ' ' * len(bar)
+    print()
 
 
 if __name__ == '__main__':

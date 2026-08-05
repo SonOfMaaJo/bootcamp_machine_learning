@@ -24,7 +24,7 @@ def ft_progress(lst):
         bar = (
             f'ETA: {eta:.2f}s [{percentage}%]' +
             f'[{schema}] {i + 1}/{lenght} | elapsed time ' +
-            f'{curr_time:.2f}s'
+            f'{curr_time * (lenght - i - 1):.2f}s'
         )
         print(f"{bar}", end='\r')
 

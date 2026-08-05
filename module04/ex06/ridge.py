@@ -95,5 +95,4 @@ class MyRidge(MyLinearRegression):
         for _ in ft_progress(range(self.max_iter)):
             self.thetas = self.thetas - self.alpha * grad
             grad = self.gradient_(x, y)
-        print()
         print("done.")

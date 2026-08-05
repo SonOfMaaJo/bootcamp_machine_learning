@@ -57,8 +57,7 @@ class MyRidge(MyLinearRegression):
     @copy_doc(MyLinearRegression.loss_elem_)
     def loss_elem_(self, y, y_hat):
         loss_elem = super().loss_elem_(y, y_hat)
-        return loss_elem + self.lambda_ * l2(self.thetas) if loss_elem \
-            is not None else None
+        return loss_elem + self.lambda_ * l2(self.thetas)
 
     @copy_doc(MyLinearRegression.loss_)
     def loss_(self, y, y_hat):
@@ -101,5 +100,4 @@ class MyRidge(MyLinearRegression):
         for _ in ft_progress(range(self.max_iter)):
             self.thetas = self.thetas - self.alpha * grad
             grad = self.gradient_(x, y)
-        print()
         print("done.")

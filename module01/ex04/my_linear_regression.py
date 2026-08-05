@@ -1,8 +1,8 @@
 from tools import add_intercept
 from vec_gradient import simple_gradient
 from math import sqrt
-from loading import ft_progress
 import numpy as np
+from loading import ft_progress
 
 
 
@@ -54,13 +54,11 @@ class MyLinearRegression():
         grad = simple_gradient(x, y, self.thetas)
         if grad is None:
             return
-        print("fitting...")
         for _ in ft_progress(range(self.max_iter)):
             self.thetas = self.thetas - self.alpha * grad
             grad = simple_gradient(x, y, self.thetas)
-            self.max_iter -= 1
         print()
-        print("done.")
+        print('done.')
 
     def loss_elem_(self, y, y_hat):
         """
@@ -108,7 +106,7 @@ class MyLinearRegression():
         return np.sum(J_elem) / (2 * len(J_elem))
 
     @classmethod
-    def mse_(cls, y, y_hat):
+    def mse_(self, y, y_hat):
         """Description:
         Calculate the MSE between the predicted output and the real output.
         Args:
@@ -130,7 +128,7 @@ class MyLinearRegression():
         return np.sum(diff * diff) / diff.size
 
     @classmethod
-    def rmse_(cls, y, y_hat):
+    def rmse_(self, y, y_hat):
         """Description:
         Calculate the RMSE between the predicted output and the real output.
         Args:
@@ -143,13 +141,13 @@ class MyLinearRegression():
         Raises:
             This function should not raise any Exceptions.
         """
-        mse = cls.mse_(y, y_hat)
+        mse = self.mse_(y, y_hat)
         if mse is None:
             return None
         return sqrt(mse)
 
-    @staticmethod
-    def mae_(y, y_hat):
+    @classmethod
+    def mae_(self, y, y_hat):
         """Description:
         Calculate the MAE between the predicted output and the real output.
             Args:
@@ -171,7 +169,7 @@ class MyLinearRegression():
         return np.sum(abs(diff)) / diff.size
 
     @classmethod
-    def r2score_(cls, y, y_hat):
+    def r2score_(self, y, y_hat):
         """Description:
         Calculate the R2score between the predicted output and the output.
         Args:
@@ -190,4 +188,4 @@ class MyLinearRegression():
                 y_hat.shape[1] != 1:
             return None
         diff_m = y - np.mean(y)
-        return 1 - diff_m.size * cls.mse_(y, y_hat) / np.sum(diff_m * diff_m)
+        return 1 - diff_m.size * self.mse_(y, y_hat) / np.sum(diff_m * diff_m)

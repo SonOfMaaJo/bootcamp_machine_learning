@@ -19,10 +19,7 @@ def add_intercept(x):
     x_dim = x.shape[0]
     if x_dim == 0:
         return None
-    try:
-        y_dim = 2 if len(x.shape) == 1 else x.shape[1] + 1
-        X = np.ones((x_dim, y_dim))
-        X[:, 1:] = x.reshape(-1, y_dim - 1)
-        return X
-    except Exception:
-        pass
+    y_dim = 2 if len(x.shape) == 1 else x.shape[1] + 1
+    X = np.ones((x_dim, y_dim))
+    X[:, 1:] = x.reshape(-1, y_dim - 1)
+    return X

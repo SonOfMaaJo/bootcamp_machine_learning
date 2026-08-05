@@ -53,10 +53,9 @@ class MyLinearRegression():
         grad = simple_gradient(x, y, self.thetas)
         if grad is None:
             return
-        while self.max_iter:
+        for _ in range(self.max_iter):
             self.thetas = self.thetas - self.alpha * grad
             grad = simple_gradient(x, y, self.thetas)
-            self.max_iter -= 1
 
     def loss_elem_(self, y, y_hat):
         """
