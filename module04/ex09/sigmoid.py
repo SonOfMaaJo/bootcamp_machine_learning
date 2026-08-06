@@ -15,8 +15,15 @@ def sigmoid_(x):
     if not isinstance(x, np.ndarray):
         return None
     if x.ndim == 2 and x.shape[1] == 1:
-        return 1 / (1 + np.exp(-x))
+        x = np.asarray(x, dtype=float)
+        result = np.empty_like(x)
+        pos = x >= 0
+        neg = ~pos
+        result[pos] = 1 / (1 + np.exp(-x[pos]))
+        result[neg] = np.exp(x[neg]) / (1 + np.exp(x[neg]))
+        return result
     return None
+
 
 if __name__ == '__main__':
     x = np.array([[-4]])
