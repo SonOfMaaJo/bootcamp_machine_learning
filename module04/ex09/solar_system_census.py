@@ -11,7 +11,7 @@ from other_metrics import f1_score_
 
 def get_models(models_list):
     models_ = []
-    errors_ = []
+    scores_ = []
     c_ = []
     for model in models_list:
         params = list(model.values())[0]
@@ -19,8 +19,8 @@ def get_models(models_list):
                             alpha=params['alpha'], lambda_=params['lambda'],
                             max_iter=1000000))
         c_.append(params['class'])
-        errors_.append(params['loss'])
-    return (np.array(models_).reshape(-1, 1), np.array(errors_).reshape(-1, 1),
+        scores_.append(params['score'])
+    return (np.array(models_).reshape(-1, 1), np.array(scores_).reshape(-1, 1),
             np.array(c_).reshape(-1, 1))
 
 
@@ -61,25 +61,27 @@ if __name__ == "__main__":
     with open("models.yml", "r", encoding="utf-8") as f:
         models_list = yaml.safe_load(f) or {}
 
-    models, errors, class_ = get_models(models_list['models'])
+    models, scores, class_ = get_models(models_list['models'])
     models_: list = []
-    errors_: list = []
+    scores_: list = []
     for i in range(4):
         models_.append(models[class_ == i])
-        errors_.append(errors[class_ == i])
+        scores_.append(scores[class_ == i])
     models = []
+    x_ = add_polynomial_features((x_train - min_) / (max_ - min_), 3)
     for i in range(4):
-        models.append(models_[i][np.unravel_index(np.argmin(errors_[i],
+        models.append(models_[i][np.unravel_index(np.argmax(scores_[i],
                                                             axis=None),
-                                                  errors_[i].shape)])
+                                                  scores_[i].shape)])
         print(f'training of the model{i}')
-        models[i].fit_(x_train - min_ / (max_ - min_),
-                       (y_train == i).astype(int))
-    class_ = classifier(x_test, models)
+        models[i].fit_(x_, (y_train == i).astype(int))
+    x_ = add_polynomial_features((x_test - min_) / (max_ - min_), 3)
+    class_ = classifier(x_, models)
     for i in range(4):
         print('Evaluation score (f1score) of the best model on test set to'
-              f' discriminate class {i}: {f1_score_(class_, y_test)}')
-    class_ = classifier(x, models)
+              f' discriminate class {i}: {f1_score_(y_test, class_, i)}')
+    x_ = add_polynomial_features((x - min_) / (max_ - min_), 3)
+    class_ = classifier(x_, models)
     plot(x[:, 0], y, class_, color='Greens', label='Origin',
          xlabel=r"$x_1$: weight",
          ylabel=r"$y$: Origin",

@@ -15,6 +15,7 @@ def plot(x, y, tuple_, best_model, features):
     lambdas = np.arange(0, 1, 0.2)
     mean, std, power = tuple_
     x_ = (x - mean) / std
+    theta = best_model.theta
     for j in range(len(lambdas)):
         for i in range(3):
             best_model.set_params_(lambda_=lambdas[j])
@@ -52,8 +53,8 @@ if __name__ == "__main__":
     x_train, x_test, y_train, y_test = data_spliter(x, y, 0.7)
     y_train = y_train.reshape(-1, 1)
     y_test = y_test.reshape(-1, 1)
-    mean = x_train.mean()
-    std = x_train.std()
+    mean = x_train.mean(axis=0, keepdims=True)
+    std = x_train.std(axis=0, keepdims=True)
 
     with open("models.yml", "r", encoding="utf-8") as f:
         models_list = yaml.safe_load(f) or {}

@@ -27,16 +27,16 @@ for lambda_ in lambdas:
     models.append(mylg(theta=np.zeros((number_row, 1)),
                        max_iter=1000000, lambda_=lambda_))
 # fitting the models
-mod: dict[str, list] = dict()
+mod: dict[str, list] = {}
 with open("models.yml", "r", encoding="utf-8") as f:
     mod = yaml.safe_load(f) or {}
-if "models.yml" not in mod.keys():
+if "models" not in mod.keys():
     mod.update({"models": []})
 
 x_ = add_polynomial_features((x_train - min_) / (max_ - min_), 3)
 for i in range(4):
     for model in models:
-        model.thetas = np.zeros((number_row, 1))
+        model.theta = np.zeros((number_row, 1))
         print(f'fitting of model{i + 1} with'
               f' lambda={model.lambda_:.1f} to discriminate class {i}...')
         model.fit_(x_, (y_train == i).astype(int))
@@ -45,10 +45,11 @@ for i in range(4):
         )
         mod["models"].append({
             f'model{i}{len(mod["models"])}': {
-                "thetas": model.thetas.tolist(),
+                "thetas": model.theta.tolist(),
                 "alpha": float(model.alpha),
                 "lambda": float(model.lambda_),
-                "loss": f1_score_((y_cross == i).astype(int), y_hat, i),
+                "score": f1_score_((y_cross == i).astype(int),
+                                  (y_hat >= 0.5).astype(int)),
                 "class": i
             }
         })
