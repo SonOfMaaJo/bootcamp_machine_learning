@@ -16,8 +16,8 @@ y_train = y_train.reshape(-1, 1)
 x_train, x_cross, y_train, y_cross = data_spliter(x_train, y_train, 0.7)
 y_train = y_train.reshape(-1, 1)
 y_cross = y_cross.reshape(-1, 1)
-mean = x_train.mean()
-std = x_train.std()
+min_ = x_train.min(axis=0, keepdims=True)
+max_ = x_train.max(axis=0, keepdims=True)
 
 # models definition
 lambdas = np.linspace(0, 1, 5)
@@ -26,30 +26,30 @@ models: list = []
 for lambda_ in lambdas:
     models.append(mylg(theta=np.zeros((number_row, 1)),
                        max_iter=1000000, lambda_=lambda_))
-models[1].alpha = 0.25e-5
 # fitting the models
-mod: dict[str, list] = dict()
+mod: dict[str, list] = {}
 with open("models.yml", "r", encoding="utf-8") as f:
     mod = yaml.safe_load(f) or {}
-if "models.yml" not in mod.keys():
+if "models" not in mod.keys():
     mod.update({"models": []})
 
-x_ = add_polynomial_features((x_train - mean) / std, 3)
+x_ = add_polynomial_features((x_train - min_) / (max_ - min_), 3)
 for i in range(4):
     for model in models:
-        model.thetas = np.zeros((number_row, 1))
+        model.theta = np.zeros((number_row, 1))
         print(f'fitting of model{i + 1} with'
               f' lambda={model.lambda_:.1f} to discriminate class {i}...')
         model.fit_(x_, (y_train == i).astype(int))
         y_hat = model.predict_(
-            add_polynomial_features((x_cross - mean) / std, 3)
+            add_polynomial_features((x_cross - min_) / (max_ - min_), 3)
         )
         mod["models"].append({
             f'model{i}{len(mod["models"])}': {
-                "thetas": model.thetas.tolist(),
+                "thetas": model.theta.tolist(),
                 "alpha": float(model.alpha),
                 "lambda": float(model.lambda_),
-                "loss": f1_score_((y_cross == i).astype(int), y_hat, i),
+                "score": f1_score_((y_cross == i).astype(int),
+                                  (y_hat >= 0.5).astype(int)),
                 "class": i
             }
         })

@@ -10,17 +10,18 @@ from other_metrics import f1_score_
 
 
 def get_models(models_list):
-    models = []
-    errors = []
-    class_ = []
+    models_ = []
+    scores_ = []
+    c_ = []
     for model in models_list:
         params = list(model.values())[0]
-        models.append(mylg(theta=np.array(params['thetas']),
-                           alpha=params['alpha'], lambda_=params['lambda'],
-                           max_iter=1000000))
-        class_.append(params['class'])
-        errors.append(params['loss'])
-    return (models, errors, class_)
+        models_.append(mylg(theta=np.array(params['thetas']),
+                            alpha=params['alpha'], lambda_=params['lambda'],
+                            max_iter=1000000))
+        c_.append(params['class'])
+        scores_.append(params['score'])
+    return (np.array(models_).reshape(-1, 1), np.array(scores_).reshape(-1, 1),
+            np.array(c_).reshape(-1, 1))
 
 
 def plot(X, Y, Y_hat, **kwargs):
@@ -54,55 +55,33 @@ if __name__ == "__main__":
     x_train, x_test, y_train, y_test = data_spliter(x, y, 0.7)
     y_train = y_train.reshape(-1, 1)
     y_test = y_test.reshape(-1, 1)
-    mean = x_train.mean()
-    std = x_train.std()
+    min_ = x_train.min(axis=0, keepdims=True)
+    max_ = x_train.max(axis=0, keepdims=True)
 
     with open("models.yml", "r", encoding="utf-8") as f:
         models_list = yaml.safe_load(f) or {}
 
-    models, errors, class_ = get_models(models_list['models'])
-    errors = np.array(errors).reshape(-1, 1)
-    class_ = np.array(class_).reshape(-1, 1)
-    models = np.array(models).reshape(-1, 1)
-    model_class0 = models[class_ == 0]
-    model_class1 = models[class_ == 1]
-    model_class2 = models[class_ == 2]
-    model_class3 = models[class_ == 3]
-    errors_class0 = errors[class_ == 0]
-    errors_class1 = errors[class_ == 1]
-    errors_class2 = errors[class_ == 2]
-    errors_class3 = errors[class_ == 3]
-    models = []
-    models.append(model_class0[np.unravel_index(np.argmin(errors_class0,
-                                                          axis=None),
-                                                errors_class0.shape)])
-    models.append(model_class1[np.unravel_index(np.argmin(errors_class1,
-                                                          axis=None),
-                                                errors_class1.shape)])
-    models.append(model_class2[np.unravel_index(np.argmin(errors_class2,
-                                                          axis=None),
-                                                errors_class2.shape)])
-    models.append(model_class3[np.unravel_index(np.argmin(errors_class3,
-                                                          axis=None),
-                                                errors_class3.shape)])
-
+    models, scores, class_ = get_models(models_list['models'])
+    models_: list = []
+    scores_: list = []
     for i in range(4):
+        models_.append(models[class_ == i])
+        scores_.append(scores[class_ == i])
+    models = []
+    x_ = add_polynomial_features((x_train - min_) / (max_ - min_), 3)
+    for i in range(4):
+        models.append(models_[i][np.unravel_index(np.argmax(scores_[i],
+                                                            axis=None),
+                                                  scores_[i].shape)])
         print(f'training of the model{i}')
-        models[i].fit_(x_test, (y_test == i).astype(int))
-    class_ = classifier(x_test, models)
-    index = errors.index(min(errors))
-    best_model = models[index]
-    print(f'the best model is the model{index}',
-          f' with lambda={best_model.lambda_:.1f}')
-    power = int((best_model.thetas.size - 1) / x.shape[1])
-    x_ = add_polynomial_features((x_train - mean) / std, power)
-    print('fitting of the best model...')
-    best_model.fit_(x_, y_train)
-    y_hat = best_model.predict_(
-        add_polynomial_features((x_test - mean) / std, power))
-    error = best_model.mse_(y_hat, y_test)
-    print(f'Evaluation score of the best model on test set: {error}')
-
+        models[i].fit_(x_, (y_train == i).astype(int))
+    x_ = add_polynomial_features((x_test - min_) / (max_ - min_), 3)
+    class_ = classifier(x_, models)
+    for i in range(4):
+        print('Evaluation score (f1score) of the best model on test set to'
+              f' discriminate class {i}: {f1_score_(y_test, class_, i)}')
+    x_ = add_polynomial_features((x - min_) / (max_ - min_), 3)
+    class_ = classifier(x_, models)
     plot(x[:, 0], y, class_, color='Greens', label='Origin',
          xlabel=r"$x_1$: weight",
          ylabel=r"$y$: Origin",

@@ -15,8 +15,8 @@ y_train = y_train.reshape(-1, 1)
 x_train, x_cross, y_train, y_cross = data_spliter(x_train, y_train, 0.7)
 y_train = y_train.reshape(-1, 1)
 y_cross = y_cross.reshape(-1, 1)
-mean = x_train.mean()
-std = x_train.std()
+mean = x_train.mean(axis=0, keepdims=True)
+std = x_train.std(axis=0, keepdims=True)
 
 lambdas = np.linspace(0, 1, 20).tolist()
 # models definition
